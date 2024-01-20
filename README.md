@@ -1,38 +1,40 @@
 # <a id="0"></a>letsencrypt-docker-compose
 
-> **The project has been discontinued.**
-> **Use [linuxserver/docker-swag](https://github.com/linuxserver/docker-swag) instead.**
+**Welcome! This is a fork of [the original](https://github.com/eugene-khyst/letsencrypt-docker-compose) with a few bugs fixed that [changes to Docker](https://github.com/docker/compose/issues/10958#issuecomment-1741614339) recently caused.**
 
-- [Overview](#1)
-- [Initial setup](#2)
-  - [Installing](#2-1)
-  - [Step 1 - Create DNS records](#2-2)
-  - [Step 2 - Configure Nginx](#2-3)
-    - [Serving static content](#2-3-1)
-    - [Reverse proxy](#2-3-2)
-      - [Single Docker Compose project](#2-3-2-1)
-      - [Multiple Docker Compose projects](#2-3-2-2)
-    - [PHP-FPM](#2-3-3)
-  - [Step 3 - Perform an initial setup using the CLI tool](#2-4)
-  - [Step 4 - Start the services](#2-5)
-  - [Step 5 - Verify that HTTPS works with the test certificates](#2-6)
-  - [Step 6 - Switch to a Let's Encrypt production environment](#2-7)
-  - [Step 7 - Verify that HTTPS works with the production certificates](#2-8)
-- [Updating](#3)
-- [Adding new domains without downtime](#4)
-  - [Step 1 - Create new DNS records](#4-1)
-  - [Step 2 - Copy static content or define upstream service](#4-2)
-  - [Step 3 - Update the configuration using the CLI tool](#4-3)
-  - [Step 4 - Verify that HTTPS works](#4-4)
-- [Removing existing domains without downtime](#5)
-- [Manually renewing all Let's Encrypt certificates](#6)
-- [Running on a local machine not directed to by DNS records](#7)
-  - [Step 1 - Perform an initial setup using the CLI tool](#7-1)
-  - [Step 2 - Start the services in dry run mode](#7-2)
-- [Advanced Nginx configuration](#8)
-- [Running Docker containers as a non-root user](#9)
-- [SSL configuration for A+ rating](#10)
-- [Troubleshooting](#11)
+**Original author suggested using [linuxserver/docker-swag](https://github.com/linuxserver/docker-swag), but I like the simplicity of this project more, so here it is with a few bug fixes to keep it working. PRs welcome.**
+
+- [letsencrypt-docker-compose](#letsencrypt-docker-compose)
+  - [Overview](#overview)
+  - [Initial setup](#initial-setup)
+    - [Installing](#installing)
+    - [Step 1 - Create DNS records](#step-1---create-dns-records)
+    - [Step 2 - Configure Nginx](#step-2---configure-nginx)
+      - [Serving static content](#serving-static-content)
+      - [Reverse proxy](#reverse-proxy)
+        - [Single Docker Compose project](#single-docker-compose-project)
+        - [Multiple Docker Compose projects](#multiple-docker-compose-projects)
+      - [PHP-FPM](#php-fpm)
+    - [Step 3 - Perform an initial setup using the CLI tool](#step-3---perform-an-initial-setup-using-the-cli-tool)
+    - [Step 4 - Start the services](#step-4---start-the-services)
+    - [Step 5 - Verify that HTTPS works with the test certificates](#step-5---verify-that-https-works-with-the-test-certificates)
+    - [Step 6 - Switch to a Let's Encrypt production environment](#step-6---switch-to-a-lets-encrypt-production-environment)
+    - [Step 7 - Verify that HTTPS works with the production certificates](#step-7---verify-that-https-works-with-the-production-certificates)
+  - [Updating](#updating)
+  - [Adding new domains without downtime](#adding-new-domains-without-downtime)
+    - [Step 1 - Create new DNS records](#step-1---create-new-dns-records)
+    - [Step 2 - Copy static content or define upstream service](#step-2---copy-static-content-or-define-upstream-service)
+    - [Step 3 - Update the configuration using the CLI tool](#step-3---update-the-configuration-using-the-cli-tool)
+    - [Step 4 - Verify that HTTPS works](#step-4---verify-that-https-works)
+  - [Removing existing domains without downtime](#removing-existing-domains-without-downtime)
+  - [Manually renewing all Let's Encrypt certificates](#manually-renewing-all-lets-encrypt-certificates)
+  - [Running on a local machine not directed to by DNS records](#running-on-a-local-machine-not-directed-to-by-dns-records)
+    - [Step 1 - Perform an initial setup using the CLI tool](#step-1---perform-an-initial-setup-using-the-cli-tool)
+    - [Step 2 - Start the services in dry run mode](#step-2---start-the-services-in-dry-run-mode)
+  - [Advanced Nginx configuration](#advanced-nginx-configuration)
+  - [Running Docker containers as a non-root user](#running-docker-containers-as-a-non-root-user)
+  - [SSL configuration for A+ rating](#ssl-configuration-for-a-rating)
+  - [Troubleshooting](#troubleshooting)
 
 <!-- Table of contents is made with https://github.com/evgeniy-khist/markdown-toc -->
 
@@ -88,7 +90,7 @@ git clone https://github.com/evgeniy-khist/letsencrypt-docker-compose.git
 
 You need to have a domain name and a server with a publicly routable IP address.
 
-For simplicity, this example deals with domain names `a.evgeniy-khyst.com` and `b.evgeniy-khyst.com`,
+For simplicity, this example deals with domain names `a.your-domain.com` and `b.your-domain.com`,
 but in reality, domain names can be any (e.g., `example.com`, `anotherdomain.net`).
 
 For all domain names create DNS A or AAAA record, or both to point to a server where Docker containers will be running.
@@ -96,14 +98,14 @@ Also, create CNAME records for the `www` subdomains if needed.
 
 **DNS records**
 
-| Type  | Hostname                  | Value                                |
-| ----- | ------------------------- | ------------------------------------ |
-| A     | `a.evgeniy-khyst.com`     | directs to IPv4 address              |
-| A     | `b.evgeniy-khyst.com`     | directs to IPv4 address              |
-| AAAA  | `a.evgeniy-khyst.com`     | directs to IPv6 address              |
-| AAAA  | `b.evgeniy-khyst.com`     | directs to IPv6 address              |
-| CNAME | `www.a.evgeniy-khyst.com` | is an alias of `a.evgeniy-khyst.com` |
-| CNAME | `www.a.evgeniy-khyst.com` | is an alias of `a.evgeniy-khyst.com` |
+| Type  | Hostname                | Value                              |
+| ----- | ----------------------- | ---------------------------------- |
+| A     | `a.your-domain.com`     | directs to IPv4 address            |
+| A     | `b.your-domain.com`     | directs to IPv4 address            |
+| AAAA  | `a.your-domain.com`     | directs to IPv6 address            |
+| AAAA  | `b.your-domain.com`     | directs to IPv6 address            |
+| CNAME | `www.a.your-domain.com` | is an alias of `a.your-domain.com` |
+| CNAME | `www.a.your-domain.com` | is an alias of `a.your-domain.com` |
 
 ### <a id="2-3"></a>Step 2 - Configure Nginx
 
@@ -118,7 +120,7 @@ Nginx can be configured
 Copy your static content to `html/${domain}` directory.
 
 ```bash
-cp -R ./examples/html/ ./html/a.evgeniy-khyst.com
+cp -R ./examples/html/ ./html/a.your-domain.com
 ```
 
 #### <a id="2-3-2"></a>Reverse proxy
@@ -135,7 +137,7 @@ Replace it with your backend service or remove it.
 services:
   example-backend:
     build: ./examples/nodejs-backend
-    image: evgeniy-khyst/expressjs-helloworld
+    image: joejordan/expressjs-helloworld
     restart: unless-stopped
 ```
 
@@ -153,7 +155,7 @@ version: "3"
 services:
   example-backend:
     build: ./examples/nodejs-backend
-    image: evgeniy-khyst/expressjs-helloworld
+    image: joejordan/expressjs-helloworld
     networks:
       - letsencrypt-docker-compose
     restart: unless-stopped
@@ -169,7 +171,7 @@ networks:
 Copy your PHP scripts to `html/${domain}` directory.
 
 ```bash
-cp -R ./examples/php/ ./html/a.evgeniy-khyst.com
+cp -R ./examples/php/ ./html/a.your-domain.com
 ```
 
 ### <a id="2-4"></a>Step 3 - Perform an initial setup using the CLI tool
@@ -227,16 +229,16 @@ For each domain, check `https://${domain}` and `https://www.${domain}` if you've
 Certificates issued by `(STAGING) Let's Encrypt` are considered not secure by browsers and cURL.
 
 ```bash
-curl --insecure https://a.evgeniy-khyst.com
-curl --insecure https://www.a.evgeniy-khyst.com
-curl --insecure https://b.evgeniy-khyst.com/hello?name=Eugene
-curl --insecure https://www.b.evgeniy-khyst.com/hello?name=Eugene
+curl --insecure https://a.your-domain.com
+curl --insecure https://www.a.your-domain.com
+curl --insecure https://b.your-domain.com/hello?name=Eugene
+curl --insecure https://www.b.your-domain.com/hello?name=Eugene
 ```
 
 If you've set up WebSocket, check it using the [wscat](https://github.com/websockets/wscat) tool.
 
 ```bash
-wscat --no-check --connect wss://b.evgeniy-khyst.com/echo
+wscat --no-check --connect wss://b.your-domain.com/echo
 ```
 
 ### <a id="2-7"></a>Step 6 - Switch to a Let's Encrypt production environment
@@ -261,16 +263,16 @@ For each domain, check `https://${domain}` and `https://www.${domain}` if you've
 Certificates issued by `Let's Encrypt` are considered secure by browsers and cURL.
 
 ```bash
-curl https://a.evgeniy-khyst.com
-curl https://www.a.evgeniy-khyst.com
-curl https://b.evgeniy-khyst.com/hello?name=Eugene
-curl https://www.b.evgeniy-khyst.com/hello?name=Eugene
+curl https://a.your-domain.com
+curl https://www.a.your-domain.com
+curl https://b.your-domain.com/hello?name=Eugene
+curl https://www.b.your-domain.com/hello?name=Eugene
 ```
 
 If you've set up WebSocket, check it using the [wscat](https://github.com/websockets/wscat) tool.
 
 ```bash
-wscat --connect wss://b.evgeniy-khyst.com/echo
+wscat --connect wss://b.your-domain.com/echo
 ```
 
 Optionally check your domains with [SSL Labs SSL Server Test](https://www.ssllabs.com/ssltest/) and review the SSL Reports.
@@ -321,11 +323,11 @@ Also, create CNAME record for `www` subdomain if needed.
 
 **DNS records**
 
-| Type  | Hostname                  | Value                                |
-| ----- | ------------------------- | ------------------------------------ |
-| A     | `c.evgeniy-khyst.com`     | directs to IPv4 address              |
-| AAAA  | `c.evgeniy-khyst.com`     | directs to IPv6 address              |
-| CNAME | `www.c.evgeniy-khyst.com` | is an alias of `c.evgeniy-khyst.com` |
+| Type  | Hostname                | Value                              |
+| ----- | ----------------------- | ---------------------------------- |
+| A     | `c.your-domain.com`     | directs to IPv4 address            |
+| AAAA  | `c.your-domain.com`     | directs to IPv6 address            |
+| CNAME | `www.c.your-domain.com` | is an alias of `c.your-domain.com` |
 
 ### <a id="4-2"></a>Step 2 - Copy static content or define upstream service
 
@@ -465,7 +467,7 @@ To make Nginx configuration changes persistent, also edit the Handlebars templat
 To add domain-specific configuration to a template use the [`ifEquals` Handlebars helper](cli/src/handlebars-helpers.js).
 
 ```hbs
-{{#ifEquals domain "a.evgeniy-khyst.com"}}
+{{#ifEquals domain "a.your-domain.com"}}
   # Configuration for a specific domain
 {{/ifEquals}}
 ```
