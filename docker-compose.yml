@@ -3,7 +3,7 @@ version: "3"
 services:
   cli:
     build: ./cli
-    image: evgeniy-khyst/letsencrypt-docker-compose-cli
+    image: joejordan/letsencrypt-docker-compose-cli
     user: ${CURRENT_USER}
     group_add:
       - ${DOCKER_GROUP}
@@ -19,7 +19,7 @@ services:
 
   nginx:
     build: ./nginx
-    image: evgeniy-khyst/nginx
+    image: joejordan/nginx
     environment:
       - DRY_RUN
     volumes:
@@ -43,7 +43,7 @@ services:
 
   certbot:
     build: ./certbot
-    image: evgeniy-khyst/certbot
+    image: joejordan/certbot
     environment:
       - DRY_RUN
     volumes:
@@ -67,7 +67,7 @@ services:
 
   cron:
     build: ./cron
-    image: evgeniy-khyst/cron
+    image: joejordan/cron
     environment:
       - COMPOSE_PROJECT_NAME
       - DRY_RUN
@@ -88,7 +88,7 @@ services:
   # Replace with your backend image or remove
   example-backend:
     build: ./examples/nodejs-backend
-    image: evgeniy-khyst/expressjs-helloworld
+    image: joejordan/expressjs-helloworld
     restart: unless-stopped
 
 volumes:
