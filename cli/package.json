@@ -10,9 +10,9 @@
   "author": "Eugene Khyst",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/evgeniy-khist/letsencrypt-docker-compose/issues"
+    "url": "https://github.com/joejordan/letsencrypt-docker-compose/issues"
   },
-  "homepage": "https://github.com/evgeniy-khist/letsencrypt-docker-compose#readme",
+  "homepage": "https://github.com/joejordan/letsencrypt-docker-compose#readme",
   "devDependencies": {
     "eslint": "8.35.0",
     "eslint-config-airbnb-base": "15.0.0",
