@@ -19,7 +19,7 @@ const runCommand = async (command, logOutput = true) => {
 };
 
 export const isNginxServiceRunning = async () => {
-  const { stdout } = await runCommand('docker compose ps --format json', false);
+  const { stdout } = await runCommand('docker compose ps --format json | jq -s', false);
   const containers = JSON.parse(stdout);
   return !!containers.find(
     (container) =>

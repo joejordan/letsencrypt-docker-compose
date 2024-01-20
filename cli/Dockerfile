@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
 RUN apk update && \
-    apk add --no-cache docker-cli docker-cli-compose
+    apk add --no-cache docker-cli docker-cli-compose jq
 
 WORKDIR /letsencrypt-docker-compose/cli
 COPY package*.json ./
