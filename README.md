@@ -36,7 +36,7 @@
   - [SSL configuration for A+ rating](#ssl-configuration-for-a-rating)
   - [Troubleshooting](#troubleshooting)
 
-<!-- Table of contents is made with https://github.com/evgeniy-khist/markdown-toc -->
+<!-- Table of contents is made with https://github.com/eugene-khyst/md-toc-cli -->
 
 ## <a id="1"></a>Overview
 
@@ -80,10 +80,10 @@ The sequence of actions:
 
 Make sure you have up to date versions of [Docker](https://docs.docker.com/install/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
-Clone this repository (or create and clone a [fork](https://github.com/evgeniy-khist/letsencrypt-docker-compose/fork)):
+Clone this repository (or create and clone a [fork](https://github.com/joejordan/letsencrypt-docker-compose/fork)):
 
 ```bash
-git clone https://github.com/evgeniy-khist/letsencrypt-docker-compose.git
+git clone https://github.com/joejordan/letsencrypt-docker-compose.git
 ```
 
 ### <a id="2-2"></a>Step 1 - Create DNS records
