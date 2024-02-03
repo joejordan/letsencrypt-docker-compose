@@ -1,17 +1,8 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: "[BUG]"
+title: "[BUG] "
 labels: bug
-assignees: ''
-
----
-
----
-name: Bug Report
-about: Create a report to help us improve
-title: ''
-labels: 'bug'
 assignees: ''
 
 ---
@@ -21,9 +12,9 @@ assignees: ''
 - [ ] I have read the documentation available at the repository's Wiki/README.
 - [ ] I have checked to ensure that the issue has not already been reported.
 
-### Docker Compose Version and Environment
+### Docker Version and Environment
 
-- Docker Compose version: (run `docker-compose --version` and paste output here)
+- Docker version: (run `docker --version` and paste output here)
 - Operating System: 
 - Any specific configuration changes made from the default setup:
 
